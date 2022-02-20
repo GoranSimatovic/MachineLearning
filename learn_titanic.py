@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score
 
 
 titanic_data = pd.read_csv("titanic.csv")
@@ -39,7 +40,9 @@ for clf in (log_clf,  rnd_clf, svm_clf, voting_clf):
     clf.fit(train_set, train_set_labels)
     fpr, tpr, _ = roc_curve(test_set_labels, clf.predict_proba(test_set)[:, 1])
     pyplot.plot(fpr, tpr, marker='.', label=clf.__class__.__name__)
-    print(clf.__class__.__name__, accuracy_score(test_set_labels, clf.predict(test_set)))
+    print('\n', clf.__class__.__name__)
+    print('Accuracy:', round(accuracy_score(test_set_labels, clf.predict(test_set)),2))
+    print('GINI score:', round(2*roc_auc_score(test_set_labels, clf.predict(test_set))-1,2))
 
 
 pyplot.xlabel('False Positive Rate')
