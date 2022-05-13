@@ -1,12 +1,9 @@
-import numpy as np
 import pandas as pd
-from matplotlib import pyplot
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
-from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, roc_curve, roc_auc_score
+
+from sklearn.metrics import accuracy_score, roc_auc_score
 
 import support_functions as sf
 
