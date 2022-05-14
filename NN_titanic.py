@@ -1,3 +1,7 @@
+
+# Quick look up for keras sequential model on titanic data
+
+
 import keras
 from keras import backend as K
 from keras.models import Sequential
