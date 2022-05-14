@@ -1,10 +1,10 @@
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-
 from sklearn.metrics import accuracy_score, roc_auc_score
 
+from matplotlib import pyplot as plt
 import support_functions as sf
 
 data = pd.read_csv("wine.csv")
@@ -30,13 +30,15 @@ target_data = data[target_variable]
 
 
 # split the data into test/train subsets (no validation)
+state_n = 42
+test_ratio = 0.2
 train_x, test_x = train_test_split(scaled_data,
-                                   test_size=0.2,
-                                   random_state=42)
+                                   test_size=test_ratio,
+                                   random_state=state_n)
 
 train_y, test_y = train_test_split(target_data,
-                                   test_size=0.2,
-                                   random_state=42)
+                                   test_size=test_ratio,
+                                   random_state=state_n)
 
 
 
@@ -47,6 +49,7 @@ univariate_results = sf.do_log_univariate(list_drivers,
                                           
 
 
+#pick up only features with gini > 5%
 filtered_list = univariate_results\
                 .loc[univariate_results.GINI>0.05]\
                 .index.tolist()
@@ -55,7 +58,9 @@ filtered_list = univariate_results\
 
 #filter out highly correlated features
 corr_cutoff = 0.5
-filtered_list = sf.do_corr_filter(scaled_data[filtered_list], corr_cutoff)
+filtered_list = sf.do_corr_filter(filtered_list,
+                                  scaled_data[filtered_list],
+                                  corr_cutoff)
     
 
 
@@ -66,10 +71,12 @@ log_clf = LogisticRegression(random_state=0)
 
 
 log_clf.fit(train_x, train_y)
-
-print('Full feature set:')
-print(list_drivers)
-print('Accuracy:',
+print('#################\n'\
++     'Full feature set:\n'\
++     '#################')
+for i in list_drivers:
+    print(list_drivers.index(i), i)
+print('\nAccuracy:',
       round(accuracy_score(test_y, log_clf.predict(test_x)),2))
 print('GINI score:',
       round(2*roc_auc_score(test_y, log_clf.predict(test_x))-1,2),
@@ -78,11 +85,48 @@ print('GINI score:',
 
 log_clf.fit(train_x[filtered_list], train_y)
 
-print('Filtered feature set:')
-print('Accuracy:',
+print('#####################\n'\
++     'Filtered feature set:\n'\
++     '#####################')
+for i in filtered_list:
+    print(filtered_list.index(i), i)   
+print('\nAccuracy:',
       round(accuracy_score(test_y, log_clf.predict(test_x[filtered_list])),2))
 print('GINI score:',
-      round(2*roc_auc_score(test_y, log_clf.predict(test_x[filtered_list]))-1,2))
+      round(2*roc_auc_score(test_y, log_clf.predict(test_x[filtered_list]))-1,2),
+      '\n\n')
+
+
+print('Cool!')
+
+
+# * Search for best n-tuple of features
+# - performance is checked using k-fold cv and GINI
+
+log_clf = LogisticRegression(random_state=0, n_jobs = -1)
+
+import support_functions as sf
+
+best_three = sf.find_best_feature_set(log_clf, train_x[list_drivers],
+                                       train_y, 3, list_drivers, 5 )
+
+
+show_first = 10
+plt.errorbar(x = range(show_first),
+             y = best_three['Gini'][:show_first],
+             yerr = best_three['std'][:show_first],
+             marker = 'o', linestyle= '--')
+plt.ylim([0.5,0.7])
+plt.xlabel('Features index')
+plt.ylabel('Gini [%]')
+plt.title('Model performance')
+plt.tight_layout()
+plt.show()
+
+
+
+
+
 
 
 
