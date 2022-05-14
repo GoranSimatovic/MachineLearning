@@ -15,7 +15,7 @@ data['quality'].replace('bad',0,inplace=True)
 data['quality'].replace('good',1,inplace=True)
 
 target_variable = 'quality'
-list_drivers = data.columns.drop(target_variable)
+list_drivers = data.columns.drop(target_variable).tolist()
 
 target_data = data[target_variable]
 
@@ -68,6 +68,7 @@ log_clf = LogisticRegression(random_state=0)
 log_clf.fit(train_x, train_y)
 
 print('Full feature set:')
+print(list_drivers)
 print('Accuracy:',
       round(accuracy_score(test_y, log_clf.predict(test_x)),2))
 print('GINI score:',
