@@ -1,16 +1,11 @@
 
-# Quick look up for keras sequential model on titanic data
+# Quick look up for Tensorflow 2 sequential model on titanic data
 
 
-import keras
-from keras import backend as K
-from keras.models import Sequential
-from keras.layers import Activation
-from keras.layers.core import Dense
-from keras.optimizers import Adam, SGD
-from keras.metrics import categorical_crossentropy
+from tensorflow import keras
+from tensorflow.keras import layers
 
-import numpy as np
+
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -18,15 +13,17 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 
-model = keras.models.Sequential()
-model.add(keras.layers.Dense(100,input_shape=(6,), activation="relu"))
-model.add(keras.layers.Dense(360, activation="relu"))
-model.add(keras.layers.Dense(360, activation="relu"))
-model.add(keras.layers.Dense(2, activation="sigmoid"))
+model = keras.Sequential()
+model.add(layers.Dense(units = 10, kernel_initializer='uniform', input_shape=(6,)))
+model.add(layers.Activation('softmax'))
+model.add(layers.Dense(units=20))
+model.add(layers.Activation('relu'))
+model.add(layers.Dense(units=1))
 
-model.compile(loss="sparse_categorical_crossentropy",
-optimizer="Adam",
-metrics=["accuracy"])
+
+opt = keras.optimizers.Adam(learning_rate=0.01)
+model.compile(loss='categorical_crossentropy', optimizer=opt)
+
 
 data = pd.read_csv("titanic.csv")
 
@@ -46,7 +43,12 @@ test_set_labels = test_set[:,0]
 train_set = train_set[:,1:]
 test_set = test_set[:,1:]
 
-history = model.fit(train_set, train_set_labels, batch_size=10,epochs = 250, shuffle = True, verbose = 3)
+history = model.fit(train_set,
+                    train_set_labels, 
+                    batch_size=10,
+                    epochs = 25, 
+                    shuffle = True, 
+                    verbose = 3)
 
 pd.DataFrame(history.history).plot(figsize=(8, 5))
 plt.grid(True)
