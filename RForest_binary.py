@@ -9,8 +9,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 #from sklearn.inspection import permutation_importance
 from sklearn.metrics import accuracy_score, roc_auc_score
-from matplotlib import pyplot as plt
-import support_functions as sf
 
 data = pd.read_csv("wine.csv")
 data.dropna(inplace=True)
@@ -52,23 +50,29 @@ results_stack = pd.DataFrame(
                 index = list_drivers).sort_values('Feature Importance',
                                                   ascending=False)
 
-# Measure performance for models with devreasing number of drivers,
+# Measure performance for models with decreasing number of drivers,
 # each new iteration has the least performing feature/s removed
 features = list_drivers
 backward_scores = pd.DataFrame(columns = ['gini', 'feature_list'],
                                index = range(3,len(features)))
+
+
 while len(features) > 2:
+    
     RF_clf.fit(train_x[features], train_y)
     gini = 2*roc_auc_score(test_y,RF_clf.predict(test_x[features]))-1
 
     n_features = len(features)
-    backward_scores.loc[n_features,
-                        'gini'] = gini
-    backward_scores.loc[n_features,
-                        'feature_list'] = ''.join([x+'__' for x in features])
+    
+    backward_scores\
+        .loc[n_features, 'gini'] = gini
+        
+    backward_scores\
+        .loc[n_features, 'feature_list'] = ''.join([x+'__' for x in features])
 
     importance_df = pd.DataFrame({'features':features,
                                   'importance':RF_clf.feature_importances_})
+    
     least_importance = importance_df.importance.min()
     features = importance_df.loc[importance_df.importance>least_importance,
                                  'features']
