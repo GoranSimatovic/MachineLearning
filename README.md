@@ -9,4 +9,4 @@ Current code examples:
 * simple NN to keep a working version available as these things change quickly
 * voter classifier with a 'mistake sharing' example
 
-Again THIS IS ONLY A LOOKUP for myself, I did not have the time to put up cool methods for data preprocessing, code pipelines or data visualization. Sorry..
+As usual all the fun stuff happens in the support functions :) Again THIS IS ONLY A LOOKUP for myself, I did not have the time to put up cool methods for data preprocessing, code pipelines or data visualization. Sorry..
